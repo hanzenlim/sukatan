@@ -1,0 +1,33 @@
+#!/usr/bin/python
+
+from googleuploader import upload_to_google_sheet
+from checknetwork import internet_on 
+import sys
+
+def upload_collection_to_google_sheet(key):
+    file = open('readingCollectionDB', 'r')
+    lines = file.readlines()
+    try:
+        for line in lines:
+            data = line.split(',')
+            date = data[0].rstrip()
+            distance = data[1].rstrip()
+            upload_to_google_sheet(date, distance, key)
+    finally:
+        file.close()
+        file = open('readingCollectionDB', 'w')
+        file.write('')
+        file.close()
+
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+      if internet_on():
+        upload_collection_to_google_sheet(sys.argv[1])
+      else:
+        print("No internet. Cant upload")
+    else:
+      print("Please pass the key of the spreadsheet as the parameter")
+
+
+

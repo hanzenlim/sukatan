@@ -1,0 +1,32 @@
+#!/usr/bin/python
+
+from checknetwork import internet_on
+from sensorReaderMaxbotix import read_distance
+from googleuploader import upload_to_google_sheet
+import sys
+import time
+import gspread
+from datetime import datetime
+from oauth2client.service_account import ServiceAccountCredentials
+
+def write_to_file(date, distance):
+    file = open('readingCollectionDB', 'a')
+    file.write(str(date) + "," + str(distance) + "\n")
+    print("Wrote to file:date:" + str(date) + " Distance:" + str(distance))
+    file.close()
+
+def execute_process(key):
+    distance = read_distance()
+    date = datetime.now().strftime("%m/%d/%Y %I:%M:%S")
+	
+    if internet_on():
+        upload_to_google_sheet(date, distance, key)
+    else:
+        write_to_file(date, distance)
+
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        execute_process(str(sys.argv[1]))
+    else:
+        print "Please pass the key of the spreadsheet as the paramter"
