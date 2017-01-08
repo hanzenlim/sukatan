@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from googleuploader import upload_to_google_sheet
+from googleuploader import upload_row_to_google_sheet
 from checknetwork import internet_on 
 import sys
 
@@ -11,8 +11,9 @@ def upload_collection_to_google_sheet(key):
         for line in lines:
             data = line.split(',')
             date = data[0].rstrip()
-            distance = data[1].rstrip()
-            upload_to_google_sheet(date, distance, key)
+            time = data[1].rstrip()
+            distance = data[2].rstrip()
+            upload_row_to_google_sheet(date, time, distance, key)
     finally:
         file.close()
         file = open('readingCollectionDB', 'w')

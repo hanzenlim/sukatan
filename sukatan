@@ -2,28 +2,37 @@
 
 from checknetwork import internet_on
 from sensorReaderMaxbotix import read_distance
-from googleuploader import upload_to_google_sheet
+from googleuploader import upload_row_to_google_sheet, upload_realtime_reading_to_google_sheet
 import sys
 import time
 import gspread
 from datetime import datetime
 from oauth2client.service_account import ServiceAccountCredentials
 
-def write_to_file(date, distance):
+def write_to_file(date, timeNow, distance):
     file = open('readingCollectionDB', 'a')
-    file.write(str(date) + "," + str(distance) + "\n")
-    print("Wrote to file:date:" + str(date) + " Distance:" + str(distance))
+    file.write(str(date) + "," + str(timeNow) + "," + str(distance) + "\n")
+    print("Wrote to file: Date:" + str(date) + " | Time:" + str(timeNow) + " | Distance:" + str(distance))
     file.close()
 
 def execute_process(key):
     distance = read_distance()
-    date = datetime.now().strftime("%m/%d/%Y %I:%M:%S")
+    date = datetime.now().strftime("%m/%d/%Y")
+    timeNow = datetime.now().strftime("%I:%M %p")
 	
-    if internet_on():
-        upload_to_google_sheet(date, distance, key)
-    else:
-        write_to_file(date, distance)
+    while True:
+      distance = read_distance()
+      if internet_on():
+        upload_realtime_reading_to_google_sheet(date, timeNow, distance, key)
+        current_hour = datetime.now().strftime("%H")
 
+        if (current_hour == '21'):
+          upload_row_to_google_sheet(date, timeNow, distance, key)
+
+      else:
+        write_to_file(date, timeNow, distance)	
+
+      time.sleep(2)
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
