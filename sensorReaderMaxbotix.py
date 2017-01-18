@@ -1,8 +1,7 @@
 from time import time, sleep
 import serial 
 
-def read_distance():
-    portName = "/dev/ttyUSB0"
+def read_distance(portName):
     maxwait = 5 # seconds to try for a good reading before quitting
     ser = serial.Serial(portName, 57600, 8, serial.PARITY_NONE, serial.STOPBITS_ONE)
     timeStart = time()

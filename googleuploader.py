@@ -16,8 +16,8 @@ def get_worksheet(workSheetNumber, key):
 
     return wks
 
-def upload_row_to_google_sheet(date, time, distance, key):
-    wks = get_worksheet(0, key)
+def upload_row_to_google_sheet(date, time, distance, key, worksheetIndex):
+    wks = get_worksheet(int(worksheetIndex), key)
 
     # Finds where the Date and Distance cell
     distanceCell = wks.find('Distance')
@@ -38,18 +38,21 @@ def upload_row_to_google_sheet(date, time, distance, key):
     
     # Insert the distance
     wks.update_cell(nextRow, distanceCell.col, distance)
-    print "Uploaded cell | Date:" + date + " | Time: " + time + "| Distance:" + str(distance) + " | Row: " + str(nextRow)
+    print "Sensor:" + str(worksheetIndex) + "| Uploaded cell | Date:" + date + " | Time: " + time + "| Distance:" + str(distance) + " | Row: " + str(nextRow)
 
-def upload_realtime_reading_to_google_sheet(date, time, distance, key):
-    wks = get_worksheet(1, key)
+def upload_realtime_reading_to_google_sheet(date, time, distance, key, lastWorksheetIndex, sensorIndex):
+    # Get the last worksheet which is equivalent to the number of sensor since index starts at 0
+    wks = get_worksheet(int(lastWorksheetIndex), key)
 
     dateCell = wks.find('Date')
     timeCell = wks.find('Time')
     distanceCell = wks.find('Distance')
+    sensorCell = wks.find('Sensor')
 
-    wks.update_cell(dateCell.row + 1, dateCell.col, date)
-    wks.update_cell(timeCell.row + 1, timeCell.col, time)
-    wks.update_cell(distanceCell.row + 1, distanceCell.col, distance)
+    wks.update_cell(dateCell.row + 1 + int(sensorIndex), dateCell.col, date)
+    wks.update_cell(timeCell.row + 1 + int(sensorIndex), timeCell.col, time)
+    wks.update_cell(distanceCell.row + 1 + int(sensorIndex), distanceCell.col, distance)
+    wks.update_cell(sensorCell.row + 1 + int(sensorIndex), sensorCell.col, sensorIndex)
 
-    print "Updated real time reading:" + " Date: " + date + "| Time: " + time + "| Distance: " + str(distance)
+    print "Sensor:" + str(sensorIndex) + " | Updated real time reading:" + " Date: " + date + "| Time: " + time + "| Distance: " + str(distance)
 
