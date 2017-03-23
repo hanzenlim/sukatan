@@ -18,19 +18,14 @@ def write_to_file(date, timeNow, distance):
 
 def execute_process(key, numberOfSensor):
 
+      while True:
         date = datetime.now().strftime("%m/%d/%Y")
         timeNow = datetime.now().strftime("%I:%M %p")
         for sensorIndex in range(0, int(numberOfSensor)):
           distance = read_distance("/dev/ttyUSB" + str(sensorIndex))
-          if internet_on():
-            upload_realtime_reading_to_google_sheet(date, timeNow, distance, key, numberOfSensor, sensorIndex)
-            current_hour = datetime.now().strftime("%H")
-            if (current_hour == '20'):
-              upload_row_to_google_sheet(date, timeNow, distance, key, sensorIndex)
-          else:
-            write_to_file(date, timeNow, distance)	
+          print "Sensor:" + str(sensorIndex) + "| Distance: " + str(distance)
 
-       # time.sleep(2)
+        time.sleep(1)
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:

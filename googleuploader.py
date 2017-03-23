@@ -2,19 +2,40 @@ import gspread
 import datetime
 from oauth2client.service_account import ServiceAccountCredentials
 
+scope2 = [
+  'https://spreadsheets.google.com/feeds/'
+]
+
+credentials = ServiceAccountCredentials.from_json_keyfile_name('/home/pi/Desktop/sukatan/credential.json', scope2)
+
+gc = gspread.authorize(credentials)
+
+wks = gc.open_by_key("1tEI-UoGyEmq1YIeStnn3ngcbxhJT69v-R0zFTNVF79Q")
+
+def get_gspread(key):
+  scope = [
+   'https://spreadsheets.google.com/feeds/'
+  ]
+  credentials = ServiceAccountCredentials.from_json_keyfile_name('/home/pi/Desktop/sukatan/credential.json', scope)
+  gc = gspread.authorize(credentials)
+
+  # Open a worksheet from spreadsheet with one shot
+  wks = gc.open_by_key(key)
+  # wks = gc.open_by_key("1tEI-UoGyEmq1YIeStnn3ngcbxhJT69v-R0zFTNVF79Q")
+  
+  return wks
+  
+
 def get_worksheet(workSheetNumber, key):
-    scope = [
-    'https://spreadsheets.google.com/feeds/'
-    ]
-    credentials = ServiceAccountCredentials.from_json_keyfile_name('/home/pi/Desktop/sukatan/credential.json', scope)
-    gc = gspread.authorize(credentials)
+  #wks = get_gspread(key)
 
-    # Open a worksheet from spreadsheet with one shot
-    wks = gc.open_by_key(key)
-    # wks = gc.open_by_key("1tEI-UoGyEmq1YIeStnn3ngcbxhJT69v-R0zFTNVF79Q")
-    wks = wks.get_worksheet(workSheetNumber)
+  return wks.get_worksheet(workSheetNumber)
 
-    return wks
+def get_worksheet_by_name(name, key):
+  #wks = get_gspread(key)
+  
+  return wks.worksheet(name)
+
 
 def upload_row_to_google_sheet(date, time, distance, key, worksheetIndex):
     wks = get_worksheet(int(worksheetIndex), key)
@@ -42,7 +63,7 @@ def upload_row_to_google_sheet(date, time, distance, key, worksheetIndex):
 
 def upload_realtime_reading_to_google_sheet(date, time, distance, key, lastWorksheetIndex, sensorIndex):
     # Get the last worksheet which is equivalent to the number of sensor since index starts at 0
-    wks = get_worksheet(int(lastWorksheetIndex), key)
+    wks = get_worksheet_by_name('RealTimeReading', key)
 
     dateCell = wks.find('Date')
     timeCell = wks.find('Time')
