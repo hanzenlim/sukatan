@@ -11,7 +11,6 @@ credentials = ServiceAccountCredentials.from_json_keyfile_name('/home/pi/Desktop
 gc = gspread.authorize(credentials)
 
 wks = gc.open_by_key("1tEI-UoGyEmq1YIeStnn3ngcbxhJT69v-R0zFTNVF79Q")
-
 def get_gspread(key):
   scope = [
    'https://spreadsheets.google.com/feeds/'
@@ -26,7 +25,7 @@ def get_gspread(key):
   return wks
   
 
-def get_worksheet(workSheetNumber, key):
+def get_worksheet_by_index(workSheetNumber, key):
   #wks = get_gspread(key)
 
   return wks.get_worksheet(workSheetNumber)
@@ -38,14 +37,15 @@ def get_worksheet_by_name(name, key):
 
 
 def upload_row_to_google_sheet(date, time, distance, key, worksheetIndex):
-    wks = get_worksheet(int(worksheetIndex), key)
+    wks = get_worksheet_by_name("Sensor " + str(worksheetIndex + 1), key)
 
     # Finds where the Date and Distance cell
     distanceCell = wks.find('Distance')
     dateCell = wks.find('Date')
     timeCell = wks.find('Time')
 
-    # Find the next row to be inserted
+    # Find the next row to be inserted.
+    # Gets all the values in the Date column and finds the next empty row.
     try:
       nextRow = wks.col_values(1).index(date) + 1
     except:
@@ -58,12 +58,13 @@ def upload_row_to_google_sheet(date, time, distance, key, worksheetIndex):
     wks.update_cell(nextRow, timeCell.col, time)
     
     # Insert the distance
-    wks.update_cell(nextRow, distanceCell.col, distance)
+    distanceCellCol = wks.row_values(nextRow).index('') + 1
+    wks.update_cell(nextRow, distanceCellCol, distance)
     print "Sensor:" + str(worksheetIndex) + "| Uploaded cell | Date:" + date + " | Time: " + time + "| Distance:" + str(distance) + " | Row: " + str(nextRow)
 
-def upload_realtime_reading_to_google_sheet(date, time, distance, key, lastWorksheetIndex, sensorIndex):
+def upload_realtime_reading_to_google_sheet(date, time, distance, key, sensorIndex):
     # Get the last worksheet which is equivalent to the number of sensor since index starts at 0
-    wks = get_worksheet_by_name('RealTimeReading', key)
+    wks = get_worksheet_by_name('Real time reading', key)
 
     dateCell = wks.find('Date')
     timeCell = wks.find('Time')
@@ -73,7 +74,7 @@ def upload_realtime_reading_to_google_sheet(date, time, distance, key, lastWorks
     wks.update_cell(dateCell.row + 1 + int(sensorIndex), dateCell.col, date)
     wks.update_cell(timeCell.row + 1 + int(sensorIndex), timeCell.col, time)
     wks.update_cell(distanceCell.row + 1 + int(sensorIndex), distanceCell.col, distance)
-    wks.update_cell(sensorCell.row + 1 + int(sensorIndex), sensorCell.col, sensorIndex)
+    wks.update_cell(sensorCell.row + 1 + int(sensorIndex), sensorCell.col, sensorIndex + 1)
 
-    print "Sensor:" + str(sensorIndex) + " | Updated real time reading:" + " Date: " + date + "| Time: " + time + "| Distance: " + str(distance)
+    print "Sensor:" + str(sensorIndex + 1) + " | Updated real time reading:" + " Date: " + date + "| Time: " + time + "| Distance: " + str(distance)
 

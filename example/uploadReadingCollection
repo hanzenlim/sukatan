@@ -13,7 +13,8 @@ def upload_collection_to_google_sheet(key):
             date = data[0].rstrip()
             time = data[1].rstrip()
             distance = data[2].rstrip()
-            upload_row_to_google_sheet(date, time, distance, key)
+            sensorIndex = data[3].rstrip()
+            upload_row_to_google_sheet(date, time, distance, key, sensorIndex)
     finally:
         file.close()
         file = open('readingCollectionDB', 'w')

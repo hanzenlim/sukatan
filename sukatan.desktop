@@ -1,9 +1,0 @@
-[Desktop Entry]
-Name=sukatan
-Comment=Sukatan application
-Icon=/usr/share/pixmaps/openbox.xpm
-Exec=/home/pi/Desktop/sukatan/sukatan
-Type=Application
-Encoding=UTF-8
-Terminal=false
-Catergories=None;
