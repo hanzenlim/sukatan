@@ -2,31 +2,33 @@
 
 from checknetwork import internet_on
 from sensorReaderMaxbotix import read_distance
-from googleuploader import upload_row_to_google_sheet, upload_realtime_reading_to_google_sheet
+from googleuploader import upload_row_to_google_sheet, upload_realtime_reading_to_google_sheet, get_config_from_worksheet
 from uploadReadingCollectionAPI import upload_collection_to_google_sheet
-
 import sys
 import time
 import gspread
 import serial
+import json
 from datetime import datetime
 from oauth2client.service_account import ServiceAccountCredentials
 
 def write_to_file(date, timeNow, distance, sensorIndex):
     file = open('readingCollectionDB', 'a')
     file.write(str(date) + "," + str(timeNow) + "," + str(distance) + "," + str(sensorIndex) + "\n")
-    print("Wrote to file: Date:" + str(date) + " | Time:" + str(timeNow) + " | Distance:" + str(distance)) + "| sensorIndex:" + str(sensorIndex)
+    print("Wrote to file: Date:" + str(date) + " | Time:" + str(timeNow) + " | Distance:" + str(distance)) + "| sensorIndex:" + str(sensorIndex + 1)
     file.close()
 
-def execute_process(key, numberOfSensor):
+def execute_process(key, numberOfSensor, dailyLogHour):
         date = datetime.now().strftime("%m/%d/%Y")
         timeNow = datetime.now().strftime("%I:%M %p")
 
         current_hour = datetime.now().strftime("%H")
-        insertDailyLog = current_hour == '23'
+        insertDailyLog = current_hour == dailyLogHour
 
-        # upload the csv file to google sheet.
-        upload_collection_to_google_sheet(key)
+        if internet_on():
+          # upload the csv file to google sheet.
+          upload_collection_to_google_sheet(key)
+      
 
         for sensorIndex in range(0, int(numberOfSensor)):
           distance = read_distance("/dev/ttyUSB" + str(sensorIndex))
@@ -37,12 +39,18 @@ def execute_process(key, numberOfSensor):
 
           else:
             if (insertDailyLog):
-              print "Writing to file"
+              print "No internet, writing to file"
               write_to_file(date, timeNow, distance, sensorIndex)	
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        execute_process(str(sys.argv[1]), str(sys.argv[2]))
+    with open('./config.json') as data_file:
+      data = json.load(data_file)
+
+    configDataFromGoogleSheet = get_config_from_worksheet(data["googleSheetKey"])
+    data.update(configDataFromGoogleSheet)
+
+    if data["googleSheetKey"] and data["sensorCount"] and data["dailyLogHour"]:
+      execute_process(data["googleSheetKey"], data["sensorCount"], data["dailyLogHour"])
     else:
-        print "Please pass the key of the spreadsheet as the paramter"
+      print "Missing fields in config.json. Check config file"

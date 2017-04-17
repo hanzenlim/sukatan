@@ -11,7 +11,7 @@ def upload_collection_to_google_sheet(key):
             time = data[1].rstrip()
             distance = data[2].rstrip()
             sensorIndex = data[3].rstrip()
-            print "Upload row to google sheet from csv file"
+            print "Reading collection DB: uploading a row to google sheet."
             upload_row_to_google_sheet(date, time, distance, key, int(sensorIndex))
     finally:
         file.close()

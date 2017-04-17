@@ -2,42 +2,61 @@ import gspread
 import datetime
 from oauth2client.service_account import ServiceAccountCredentials
 
-scope2 = [
-  'https://spreadsheets.google.com/feeds/'
-]
+# Global variable
+wks = ''
 
-credentials = ServiceAccountCredentials.from_json_keyfile_name('/home/pi/Desktop/sukatan/credential.json', scope2)
-
-gc = gspread.authorize(credentials)
-
-wks = gc.open_by_key("1tEI-UoGyEmq1YIeStnn3ngcbxhJT69v-R0zFTNVF79Q")
 def get_gspread(key):
+  global wks
+
   scope = [
    'https://spreadsheets.google.com/feeds/'
   ]
-  credentials = ServiceAccountCredentials.from_json_keyfile_name('/home/pi/Desktop/sukatan/credential.json', scope)
-  gc = gspread.authorize(credentials)
 
-  # Open a worksheet from spreadsheet with one shot
-  wks = gc.open_by_key(key)
-  # wks = gc.open_by_key("1tEI-UoGyEmq1YIeStnn3ngcbxhJT69v-R0zFTNVF79Q")
+  if wks == '':
+    credentials = ServiceAccountCredentials.from_json_keyfile_name('/home/pi/Desktop/sukatan/credential.json', scope)
+    gc = gspread.authorize(credentials)
+    wks = gc.open_by_key(key)
+    return wks
+  else:
+    return wks
+    
+def get_config_from_worksheet(key):
+  print "Reading config from google sheet"
+  worksheet = get_gspread(key)
+  configSheet= worksheet.worksheet('config')
+  configData = {}
   
-  return wks
-  
+  # Get sensor count.
+  sensorCountCell = configSheet.find('sensorCount')
+  row = sensorCountCell.row
+  column = sensorCountCell.col + 1
+  sensorCountCellValue = configSheet.cell(row, column)
+  configData["sensorCount"] = sensorCountCellValue.value
+
+  # Get dailyLogHour
+  dailyLogHourCell = configSheet.find('dailyLogHour')
+  row = dailyLogHourCell.row
+  column = dailyLogHourCell.col + 1
+  dailyLogHourCellValue = configSheet.cell(row, column)
+  configData["dailyLogHour"] = dailyLogHourCellValue.value
+
+  return configData
+
 
 def get_worksheet_by_index(workSheetNumber, key):
-  #wks = get_gspread(key)
+  worksheet = get_gspread(key)
 
-  return wks.get_worksheet(workSheetNumber)
+  return worksheet.get_worksheet(workSheetNumber)
+
 
 def get_worksheet_by_name(name, key):
-  #wks = get_gspread(key)
+  worksheet = get_gspread(key)
   
-  return wks.worksheet(name)
+  return worksheet.worksheet(name)
 
 
-def upload_row_to_google_sheet(date, time, distance, key, worksheetIndex):
-    wks = get_worksheet_by_name("Sensor " + str(worksheetIndex + 1), key)
+def upload_row_to_google_sheet(date, time, distance, key, sensorIndex):
+    wks = get_worksheet_by_name("Sensor " + str(sensorIndex + 1), key)
 
     # Finds where the Date and Distance cell
     distanceCell = wks.find('Distance')
@@ -60,7 +79,7 @@ def upload_row_to_google_sheet(date, time, distance, key, worksheetIndex):
     # Insert the distance
     distanceCellCol = wks.row_values(nextRow).index('') + 1
     wks.update_cell(nextRow, distanceCellCol, distance)
-    print "Sensor:" + str(worksheetIndex) + "| Uploaded cell | Date:" + date + " | Time: " + time + "| Distance:" + str(distance) + " | Row: " + str(nextRow)
+    print "Sensor:" + str(sensorIndex + 1) + "| Uploaded daily log | Date:" + date + " | Time: " + time + "| Distance:" + str(distance) + " | Row: " + str(nextRow)
 
 def upload_realtime_reading_to_google_sheet(date, time, distance, key, sensorIndex):
     # Get the last worksheet which is equivalent to the number of sensor since index starts at 0

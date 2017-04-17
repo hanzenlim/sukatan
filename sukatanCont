@@ -1,20 +1,12 @@
 #!/usr/bin/python
 
-from checknetwork import internet_on
 from sensorReaderMaxbotix import read_distance
-from googleuploader import upload_row_to_google_sheet, upload_realtime_reading_to_google_sheet
 import sys
 import time
 import gspread
 import serial
 from datetime import datetime
 from oauth2client.service_account import ServiceAccountCredentials
-
-def write_to_file(date, timeNow, distance):
-    file = open('readingCollectionDB', 'a')
-    file.write(str(date) + "," + str(timeNow) + "," + str(distance) + "\n")
-    print("Wrote to file: Date:" + str(date) + " | Time:" + str(timeNow) + " | Distance:" + str(distance))
-    file.close()
 
 def execute_process(key, numberOfSensor):
 
