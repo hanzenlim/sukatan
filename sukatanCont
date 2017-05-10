@@ -8,7 +8,7 @@ import serial
 from datetime import datetime
 from oauth2client.service_account import ServiceAccountCredentials
 
-def execute_process(key, numberOfSensor):
+def execute_process(numberOfSensor):
 
       while True:
         date = datetime.now().strftime("%m/%d/%Y")
@@ -20,7 +20,7 @@ def execute_process(key, numberOfSensor):
         time.sleep(1)
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        execute_process(str(sys.argv[1]), str(sys.argv[2]))
+    if len(sys.argv) > 0:
+        execute_process(str(sys.argv[1]))
     else:
-        print "Please pass the key of the spreadsheet as the paramter"
+        print "Please pass the number of sensor(s) attached to the device."

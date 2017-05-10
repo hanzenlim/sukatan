@@ -22,7 +22,9 @@ def execute_process(key, numberOfSensor, dailyLogHour):
         date = datetime.now().strftime("%m/%d/%Y")
         timeNow = datetime.now().strftime("%I:%M %p")
 
-        current_hour = datetime.now().strftime("%H")
+        # Get current hour in 24 hour format and remove leading 0. i.e. 09 becomes 9
+        current_hour = datetime.now().strftime("%H").lstrip('0')
+
         insertDailyLog = current_hour == dailyLogHour
 
         if internet_on():
@@ -44,11 +46,12 @@ def execute_process(key, numberOfSensor, dailyLogHour):
 
 
 if __name__ == "__main__":
-    with open('./config.json') as data_file:
+    with open('/home/pi/Desktop/sukatan/config.json') as data_file:
       data = json.load(data_file)
 
-    configDataFromGoogleSheet = get_config_from_worksheet(data["googleSheetKey"])
-    data.update(configDataFromGoogleSheet)
+    if internet_on():
+      configDataFromGoogleSheet = get_config_from_worksheet(data["googleSheetKey"])
+      data.update(configDataFromGoogleSheet)
 
     if data["googleSheetKey"] and data["sensorCount"] and data["dailyLogHour"]:
       execute_process(data["googleSheetKey"], data["sensorCount"], data["dailyLogHour"])
