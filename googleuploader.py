@@ -77,9 +77,13 @@ def upload_row_to_google_sheet(date, time, distance, key, sensorIndex):
     wks.update_cell(nextRow, timeCell.col, time)
     
     # Insert the distance
-    distanceCellCol = wks.row_values(nextRow).index('') + 1
-    wks.update_cell(nextRow, distanceCellCol, distance)
-    print "Sensor:" + str(sensorIndex + 1) + "| Uploaded daily log | Date:" + date + " | Time: " + time + "| Distance:" + str(distance) + " | Row: " + str(nextRow)
+    try:
+      distanceCellCol = wks.row_values(nextRow).index('') + 1
+      wks.update_cell(nextRow, distanceCellCol, distance)
+      print "Sensor:" + str(sensorIndex + 1) + "| Uploaded daily log | Date:" + date + " | Time: " + time + "| Distance:" + str(distance) + " | Row: " + str(nextRow)
+      return True
+    except:
+      return False
 
 def upload_realtime_reading_to_google_sheet(date, time, distance, key, sensorIndex):
     # Get the last worksheet which is equivalent to the number of sensor since index starts at 0

@@ -3,7 +3,12 @@ import serial
 
 def read_distance(portName):
     maxwait = 5 # seconds to try for a good reading before quitting
-    ser = serial.Serial(portName, 57600, 8, serial.PARITY_NONE, serial.STOPBITS_ONE)
+    try:
+      ser = serial.Serial(portName, 57600, 8, serial.PARITY_NONE, serial.STOPBITS_ONE)
+    except:
+      print "Could not open serial port"
+      return False 
+
     timeStart = time()
     valueCount = 0
 
