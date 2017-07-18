@@ -17,3 +17,10 @@ crontab -e
 
 ## How to view crontab job
 crontab -l
+ 
+## How to make an image 
+sudo dd if=/dev/diskX of=/path/of/destination bs=1m (you can use diskutil list to view the name of SD card)
+
+## How to install an image
+sudo diskutil unmount /dev/diskX  (where diskX is the name of the SD card)
+sudo dd if=/path/of/image of=/dev/diskX
