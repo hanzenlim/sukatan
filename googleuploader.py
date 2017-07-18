@@ -13,7 +13,7 @@ def get_gspread(key):
   ]
 
   if wks == '':
-    credentials = ServiceAccountCredentials.from_json_keyfile_name('/home/pi/Desktop/sukatan/credential.json', scope)
+    credentials = ServiceAccountCredentials.from_json_keyfile_name('/home/pi/Desktop/sukatan/sukatan.credential.json', scope)
     gc = gspread.authorize(credentials)
     wks = gc.open_by_key(key)
     return wks
