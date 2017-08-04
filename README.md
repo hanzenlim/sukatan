@@ -23,4 +23,5 @@ sudo dd if=/dev/diskX of=/path/of/destination bs=1m (you can use diskutil list t
 
 ## How to install an image
 sudo diskutil unmount /dev/diskX  (where diskX is the name of the SD card)
+
 sudo dd if=/path/of/image of=/dev/diskX
